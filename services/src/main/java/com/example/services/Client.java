@@ -13,22 +13,26 @@ public class Client {
     public Client(Socket socket) {
         try {
             this.socket = socket;
-            this.outputStream = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-            this.inputStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
-
+            System.out.println("-");
+            this.outputStream = new ObjectOutputStream(socket.getOutputStream());
+            System.out.println("+");
+            this.inputStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    public void sendMessageReqRes(MessageReqRes messageReqRes) {
+
+    public MessageReqRes getMessage() {
         try {
-            outputStream.writeObject(messageReqRes);
-        } catch (IOException e) {
+            return (MessageReqRes) inputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Socket socket() {
-        return socket;
+    public void sendMessageReqRes(MessageReqRes messageReqRes) throws IOException {
+        this.outputStream.writeObject(messageReqRes);
+        this.outputStream.flush();
+
     }
 }

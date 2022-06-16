@@ -1,9 +1,8 @@
 package com.example.services;
 
-public record ResponseGetMessage(TextMessage textMessage) implements MessageReqRes {
+import java.io.Serializable;
 
-    @Override
-    public TypeMessage typeMessage() {
-        return TypeMessage.RESPONSE_GET_MESSAGE;
-    }
+public record ResponseGetMessage(TextMessage textMessage, String userName) implements MessageReqRes, Serializable {
+
+
 }

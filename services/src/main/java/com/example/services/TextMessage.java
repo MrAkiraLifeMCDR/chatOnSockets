@@ -1,5 +1,7 @@
 package com.example.services;
 
-public record TextMessage(String text) {
+import java.io.Serializable;
+
+public record TextMessage(String text) implements Serializable {
 
 }

@@ -1,9 +1,7 @@
 package com.example.services;
 
-public record ResponseSendMessage(String answer) implements MessageReqRes {
+import java.io.Serializable;
 
-    @Override
-    public TypeMessage typeMessage() {
-        return TypeMessage.RESPONSE_SEND_MESSAGE;
-    }
+public record ResponseSendMessage(String answer) implements MessageReqRes, Serializable {
+
 }

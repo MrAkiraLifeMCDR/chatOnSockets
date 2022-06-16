@@ -33,15 +33,12 @@ public class ServerLogic {
                 var socket = serverSocket.accept();
                 System.out.println("Есть подключение от: " + socket.toString());
                 var client = new Client(socket);
+
                 System.out.println("Клиент добавлен в список");
                 clientList.add(client);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        System.out.println("Пошла работа с клиентом (поток)");
-                        serveClient(client);
-                    }
-                }).start();
+                System.out.println("Пошла работа с клиентом (поток)");
+                serveClient(client);
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -50,25 +47,32 @@ public class ServerLogic {
 
     private void serveClient(Client client) {
         //todo обслужить клиента
-        try {
-            ObjectInputStream inputStream = new ObjectInputStream(new BufferedInputStream(client.socket().getInputStream()));
-            System.out.println("Обоюдная связсь Сервер/Клиент налажена");
-            System.out.println("Ждем сообщение от клиента");
-            var messageReqRes = (MessageReqRes) inputStream.readObject();
-            System.out.println("Сообщение от клиента полученно: " + messageReqRes.toString());
+        System.out.println("Обоюдная связсь Сервер/Клиент налажена");
+        System.out.println("Ждем сообщение от клиента");
 
-            if (messageReqRes instanceof RequestSendMessage message) {
-                var responseGetMessage = new ResponseGetMessage(message.textMessage());
-                sendResponseGetMessageAllClients(responseGetMessage);
-                var responseSendMessage = new ResponseSendMessage("Сообщение успешно доставленно");
-                client.sendMessageReqRes(responseSendMessage);
+        new Thread(() -> {
+            try {
+
+                while (true) {
+                    var messageReqRes = client.getMessage();
+
+                    if (messageReqRes instanceof RequestSendMessage message) {
+                        var responseGetMessage = new ResponseGetMessage(message.textMessage(), message.userName());
+                        sendResponseGetMessageAllClients(responseGetMessage);
+                        var responseSendMessage = new ResponseSendMessage("Сообщение успешно доставленно");
+                        client.sendMessageReqRes(responseSendMessage);
+                        System.out.println("Сообщение от клиента полученно: " + messageReqRes.toString());
+                    }
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+
+        }).start();
+
     }
 
-    private void sendResponseGetMessageAllClients(MessageReqRes messageReqRes) {
+    private void sendResponseGetMessageAllClients(MessageReqRes messageReqRes) throws IOException {
         for (Client client : clientList) {
             client.sendMessageReqRes(messageReqRes);
             System.out.println("Отправили (" + messageReqRes.toString() + ") к (" + client + ")");

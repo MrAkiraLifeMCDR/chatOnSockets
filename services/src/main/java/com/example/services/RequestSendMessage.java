@@ -2,10 +2,6 @@ package com.example.services;
 
 import java.io.Serializable;
 
-public record RequestSendMessage(TextMessage textMessage) implements MessageReqRes, Serializable {
+public record RequestSendMessage(TextMessage textMessage, String userName) implements MessageReqRes, Serializable {
 
-    @Override
-    public TypeMessage typeMessage() {
-        return TypeMessage.REQUEST_SEND_MESSAGE;
-    }
 }
